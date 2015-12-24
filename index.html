@@ -47,8 +47,7 @@
 <body>
 <div id="editor">
   <div class="buttons">
-    <input type="button" id="load" value="&darr; Load Data From Text" title="Load data from textarea into the Timeline">
-    <input type="button" id="save" value="&uarr; Save Locally" title="Save data from the Timeline into the textarea">
+    <input type="button" id="load" value="&larr; Load Data From Text" title="Load data from textarea into the Timeline">
   </div>
 
   <h3>Events</h3>
@@ -62,6 +61,8 @@
     {"id": 6, "content": "item 6", "start": "2014-01-26", "group": "0"}
   ]
   </textarea>
+  <input type="button" id="save" value="Save to Local Storage" title="Save data from the Timeline into the textarea" />
+  <input type="button" class="button file-save" value="Save to File" disabled/>
 </div>
 
 <div id="visualization"></div>
