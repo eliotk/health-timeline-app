@@ -1,0 +1,9 @@
+{
+  "name": "timelinehealth",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "ISC",
+  "devDependencies": {
+    "vis": "^4.10.0"
+  }
+}

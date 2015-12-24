@@ -1,0 +1,200 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>Timeline</title>
+
+  <style>
+    body, html {
+      font-family: arial, sans-serif;
+      font-size: 11pt;
+      height: 100%;
+      margin: 0px;
+      padding: 0px;
+    }
+
+    textarea {
+      height: 400px;
+    }
+
+    .buttons {
+      margin: 20px 0;
+    }
+
+    .buttons input {
+      padding: 10px;
+    }
+
+    #visualization {
+      height: inherit;
+    }
+
+    #editor {
+      padding: 10px;
+      float: right;
+      width: 200px;
+      background-color: beige;
+    }
+
+    .data-text.groups {
+      height: 200px;
+    }
+
+    .data-text.events {
+      height: 300px;
+    }
+  </style>
+
+  <script src="./dist/vis.js"></script>
+  <link href="./dist/vis.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="editor">
+  <div class="buttons">
+    <input type="button" id="load" value="&darr; Load Data From Text" title="Load data from textarea into the Timeline">
+    <input type="button" id="save" value="&uarr; Save Locally" title="Save data from the Timeline into the textarea">
+  </div>
+
+  <h3>Events</h3>
+  <textarea id="data" class="data-text events">
+  [
+    {"id": 1, "content": "item 1<br>start", "start": "2014-01-23", "group": "0"},
+    {"id": 2, "content": "item 2", "start": "2014-01-18", "group": "0"},
+    {"id": 3, "content": "item 3", "start": "2014-01-21", "group": "0"},
+    {"id": 4, "content": "item 4", "start": "2014-01-19", "end": "2014-01-24", "group": "0"},
+    {"id": 5, "content": "item 5", "start": "2014-01-28", "type": "point", "group": "0"},
+    {"id": 6, "content": "item 6", "start": "2014-01-26", "group": "0"}
+  ]
+  </textarea>
+
+  <h3>Groups</h3>
+  <textarea id="groups" class="data-text groups">
+  [
+    {"id": 0, "content": "Meds", "value": 0},
+    {"id": 1, "content": "Hospitalizations", "value": 1},
+    {"id": 2, "content": "Exercise", "value": 2},
+    {"id": 3, "content": "Misc", "value": 4},
+    {"id": 4, "content": "Problems", "value": 3},
+    {"id": 5, "content": "Operations", "value": 0}
+  ]
+  </textarea>
+</div>
+
+<div id="visualization"></div>
+
+
+<script>
+  // var stringified = JSON.stringify(rawData, null, 2);
+
+  /* TODO
+    * build groups data object out of flat events json using group_name field
+  */
+
+  var eventData = document.getElementById('data');
+  var groupData = document.getElementById('groups');
+
+  var btnLoad = document.getElementById('load');
+  var btnSave = document.getElementById('save');
+
+  // Create an empty DataSet.
+  // This DataSet is used for two way data binding with the Timeline.
+  var items = new vis.DataSet();
+
+  // create a timeline
+  var container = document.getElementById('visualization');
+  var options = {
+    // editable: true
+  };
+  var groups = new vis.DataSet();
+  var timeline = new vis.Timeline(container, items, groups, options);
+
+  function Groups(events) {
+    this._events = events;
+    this.visArray = this._generateVisArray();
+	}
+
+  /* derive group array for vis js from events */
+  Groups.prototype._generateVisArray = function () {
+    var events = this._events;
+    var unique = {};
+    var distinct = [];
+
+    for( var i in events ) {
+      if( typeof(unique[events[i].group_name]) == "undefined"){
+
+        distinct.push({ id: parseInt(i), content:events[i].group_name });
+      }
+      unique[events[i].group_name] = 'Unclassified';
+    }
+
+    return distinct;
+  }
+
+  /* return a groupd id from group name */
+  Groups.prototype.groupId = function (group_name) {
+    for (var group of this.visArray) {
+      if (group.content == group_name) {
+        return group.id;
+      }
+    }
+  }
+
+  function loadData() {
+    // get and deserialize the data
+    var rawData = JSON.parse(eventData.value);
+
+    var groupProcessing = new Groups(rawData);
+
+    // map data items and convert any ongoing event to proper end date
+    var data = rawData.map(function(item) {
+      if(item.end != undefined && item.end == 'ongoing') {
+        item.end = vis.moment();
+      }
+
+      item.group = groupProcessing.groupId(item.group_name);
+      console.log(item);
+
+      return item;
+    });
+
+    // groupArray = createGroupArray(data);
+
+    items.clear();
+    items.add(data);
+
+    groups.update( groupProcessing.visArray );
+
+    // adjust the timeline window such that we see the loaded data
+    timeline.fit();
+  }
+
+  function saveData() {
+    localStorage.setItem('events', eventData.value);
+  }
+  // ceate an array of groups from events object
+  function createGroupArray(events) {
+    var unique = {};
+    var distinct = [];
+
+    for( var i in events ) {
+      if( typeof(unique[events[i].group_name]) == "undefined"){
+
+        distinct.push({ id: parseInt(i), content:events[i].group_name });
+      }
+      unique[events[i].group_name] = 'Unclassified';
+    }
+    console.log(distinct);
+    return JSON.stringify(distinct);
+    // return distinct;
+  }
+
+  btnLoad.onclick = loadData;
+  btnSave.onclick = saveData;
+
+  events = localStorage.getItem("events");
+  if (events != null) {
+    eventData.value = events;
+  }
+  loadData();
+</script>
+</body>
+</html>
