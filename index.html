@@ -12,6 +12,10 @@
       padding: 0px;
     }
 
+    h3 {
+      font-size: .9em;
+    }
+
     textarea {
       height: 400px;
     }
@@ -38,19 +42,28 @@
     .data-text.events {
       height: 300px;
       width: 100%;
+      font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
+    }
+
+    .data-text.ccda {
+      width: 100%;
+      height: 200px;
     }
   </style>
 
   <script src="./dist/vis.js"></script>
+  <script src="./dist/js-yaml.js"></script>
+  <script src="./dist/vanilla-notify.js"></script>
   <link href="./dist/vis.css" rel="stylesheet" type="text/css" />
+  <link href="./dist/vanilla-notify.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
 <div id="editor">
   <div class="buttons">
-    <input type="button" id="load" value="&larr; Load Data From Text" title="Load data from textarea into the Timeline">
   </div>
 
   <h3>Events</h3>
+  <a href="#"">Load sample events</a>
   <textarea id="data" class="data-text events">
   [
     {"id": 1, "content": "item 1<br>start", "start": "2014-01-23", "group": "0"},
@@ -61,18 +74,20 @@
     {"id": 6, "content": "item 6", "start": "2014-01-26", "group": "0"}
   ]
   </textarea>
-  <input type="button" id="save" value="Save to Local Storage" title="Save data from the Timeline into the textarea" />
-  <input type="button" class="button file-save" value="Save to File" disabled/>
+  <input type="button" id="save" value="Save" title="Save data from the Timeline into the textarea" />
+  <input type="button" class="button file-save" value="Save to File" disabled />
+  <h3>Import CCDA</h3>
+  <textarea id="ccda" class="data-text ccda">
+
+  </textarea>
+  <input type="button" id="import-ccda" value="Import" />
 </div>
 
 <div id="visualization"></div>
 
 
 <script>
-  // var stringified = JSON.stringify(rawData, null, 2);
-
   /* TODO
-    * build groups data object out of flat events json using group_name field
   */
 
   var eventData = document.getElementById('data');
@@ -103,10 +118,9 @@
     var events = this._events;
     var unique = {};
     var distinct = [];
-
     for( var i in events ) {
-      if( typeof(unique[events[i].group_name]) == "undefined"){
-
+      if( typeof(unique[events[i].group_name]) == "undefined" && typeof events[i].group_name !== "undefined"){
+        console.log(events[i].group_name);
         distinct.push({ id: parseInt(i), content:events[i].group_name });
       }
       unique[events[i].group_name] = 'Unclassified';
@@ -126,7 +140,7 @@
 
   function loadData() {
     // get and deserialize the data
-    var rawData = JSON.parse(eventData.value);
+    var rawData = jsyaml.load(eventData.value);
 
     var groupProcessing = new Groups(rawData);
 
@@ -155,6 +169,8 @@
 
   function saveData() {
     localStorage.setItem('events', eventData.value);
+    loadData();
+    vNotify.success({title:'Data saved'});
   }
   // ceate an array of groups from events object
   function createGroupArray(events) {
@@ -173,7 +189,6 @@
     // return distinct;
   }
 
-  btnLoad.onclick = loadData;
   btnSave.onclick = saveData;
 
   events = localStorage.getItem("events");
