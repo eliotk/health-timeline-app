@@ -54,6 +54,10 @@
     .vis-item .vis-item-overflow {
       overflow: visible;
     }
+
+    #search {
+      padding: 10px;
+    }
   </style>
 
   <script src="./dist/vis.js"></script>
@@ -88,8 +92,14 @@
   <input type="button" id="import-ccda" value="Import" />
 </div>
 
+<div id="search">
+  <input type="text" name="name" value=""> <input type="button" name="name" value="search">
+</div>
 <div id="visualization"></div>
-
+<div id="additional_info" style="position: fixed; bottom: 0px; left: 0px; font-size: 14px; padding: 10px; background-color: #CCC; width: 100%; z-index: 1; display: none;">
+  <div style="float:right;">[<a id="close-additional-info" href="#">x</a>]</div>
+  <div id="additional_info_text"></div>
+</div>
 
 <script>
   /* TODO
@@ -114,6 +124,22 @@
   };
   var groups = new vis.DataSet();
   var timeline = new vis.Timeline(container, items, groups, options);
+
+  timeline.on('select', function(properties) {
+    var additional_info_text, item;
+    item = items.get(properties.items[0]);
+    additional_info_text = "<i>" + item.start + " - " + item.end + "</i><br />";
+    additional_info_text += JSON.stringify(item, null, 2);
+    document.querySelector('#additional_info').style.display = "inline";
+    document.querySelector('#additional_info_text').innerHTML = additional_info_text;
+  });
+
+  timeline.on('click', function(properties) {
+    console.log(this.getSelection());
+    if (this.getSelection().length < 1) {
+     document.querySelector('#additional_info').style.display = "none";
+    }
+  });
 
   function Groups(events) {
     this._events = events;
