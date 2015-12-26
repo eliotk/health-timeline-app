@@ -5,5 +5,9 @@
   "license": "ISC",
   "devDependencies": {
     "vis": "^4.10.0"
+  },
+  "dependencies": {
+    "bluebutton": "^0.4.2",
+    "js-yaml": "^3.4.6"
   }
 }
