@@ -2,7 +2,8 @@
 <html>
 <head>
   <title>Timeline</title>
-
+  <link href="./dist/vis.css" rel="stylesheet" type="text/css" />
+  <link href="./dist/vanilla-notify.css" rel="stylesheet" type="text/css" />
   <style>
     body, html {
       font-family: arial, sans-serif;
@@ -49,13 +50,16 @@
       width: 100%;
       height: 200px;
     }
+
+    .vis-item .vis-item-overflow {
+      overflow: visible;
+    }
   </style>
 
   <script src="./dist/vis.js"></script>
   <script src="./dist/js-yaml.js"></script>
   <script src="./dist/vanilla-notify.js"></script>
-  <link href="./dist/vis.css" rel="stylesheet" type="text/css" />
-  <link href="./dist/vanilla-notify.css" rel="stylesheet" type="text/css" />
+  <script src="./dist/bluebutton.js"></script>
 </head>
 <body>
 <div id="editor">
@@ -77,6 +81,7 @@
   <input type="button" id="save" value="Save" title="Save data from the Timeline into the textarea" />
   <input type="button" class="button file-save" value="Save to File" disabled />
   <h3>Import CCDA</h3>
+  <a href="#" id="load-sample-ccda">Load sample CCD-A</a>
   <textarea id="ccda" class="data-text ccda">
 
   </textarea>
@@ -92,9 +97,11 @@
 
   var eventData = document.getElementById('data');
   var groupData = document.getElementById('groups');
+  var ccdaData = document.getElementById('ccda');
 
-  var btnLoad = document.getElementById('load');
   var btnSave = document.getElementById('save');
+  var btnCcdaImport = document.getElementById('import-ccda');
+
 
   // Create an empty DataSet.
   // This DataSet is used for two way data binding with the Timeline.
@@ -120,7 +127,6 @@
     var distinct = [];
     for( var i in events ) {
       if( typeof(unique[events[i].group_name]) == "undefined" && typeof events[i].group_name !== "undefined"){
-        console.log(events[i].group_name);
         distinct.push({ id: parseInt(i), content:events[i].group_name });
       }
       unique[events[i].group_name] = 'Unclassified';
@@ -146,12 +152,20 @@
 
     // map data items and convert any ongoing event to proper end date
     var data = rawData.map(function(item) {
-      if(item.end != undefined && item.end == 'ongoing') {
+      if(typeof item.end !== 'undefined' && item.end == 'ongoing') {
         item.end = vis.moment();
       }
 
       item.group = groupProcessing.groupId(item.group_name);
-      console.log(item);
+
+      if(typeof item.end !== 'undefined' && item.start == item.end) {
+        delete item.end;
+      }
+
+      if(typeof item.end == 'undefined') {
+        item.type = 'point';
+      }
+
 
       return item;
     });
@@ -184,12 +198,73 @@
       }
       unique[events[i].group_name] = 'Unclassified';
     }
-    console.log(distinct);
     return JSON.stringify(distinct);
-    // return distinct;
+  }
+  function loadSampleCcda() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('get', './sample-ccda.xml', false);
+    xhr.send();
+    ccdaData.value = xhr.responseText;
+  }
+  function importCcda() {
+    ccdaProcessor = new CcdaProcessor(ccdaData.value);;
+    eventData.value = JSON.stringify(ccdaProcessor.events(), null, 2);
+    vNotify.success({title:'CCDA imported'});
+  }
+
+  var CcdaProcessor = function(ccdaData) {
+    this.ccdaData = ccdaData;
+    this.bb = BlueButton(ccdaData);
+  }
+
+  CcdaProcessor.prototype.events = function() {
+    var encounterEvents = this.bb.data.encounters.map(function(encounter) {
+      encounter.start = encounter.date;
+      encounter.group_name = 'Encounters';
+      encounter.content = encounter.name;
+      return encounter;
+    });
+
+    var immunizationEvents = this.bb.data.immunizations.map(function(immunization) {
+      immunization.content = immunization.product.name;
+      immunization.start = immunization.date;
+      immunization.group_name = 'Immunizations';
+      return immunization;
+    });
+
+    var medicationEvents = this.bb.data.medications.map(function(item) {
+      item.content = item.text;
+      item.start = item.date_range.start;
+      item.end = item.date_range.end;
+      item.group_name = 'Medications';
+      return item;
+    });
+
+    var problemEvents = this.bb.data.problems.map(function(item) {
+      item.content = item.name;
+      item.start = item.date_range.start;
+      item.end = item.date_range.end;
+      item.group_name = 'Problems';
+      return item;
+    });
+
+    var procedureEvents = this.bb.data.procedures.map(function(item) {
+      item.content = item.name;
+      item.start = item.date;
+      item.group_name = 'procedures';
+      return item;
+    });
+
+    return encounterEvents.concat(immunizationEvents).concat(medicationEvents).concat(problemEvents).concat(procedureEvents);
   }
 
   btnSave.onclick = saveData;
+  btnCcdaImport.onclick = importCcda;
+
+  document.querySelector("#load-sample-ccda").addEventListener("click", function(event){
+    event.preventDefault();
+    loadSampleCcda();
+  });
 
   events = localStorage.getItem("events");
   if (events != null) {
