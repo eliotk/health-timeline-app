@@ -48,8 +48,19 @@ textarea {
   overflow: visible;
 }
 
-#search {
+#header {
   padding: 10px;
+}
+
+#header .description h2 {
+  margin: 0px;
+  font-size: 1.1em;
+  display: inline;
+}
+
+#header .search-container {
+  float: right;
+  margin-right: 10px;
 }
 
 #additional_info_text {

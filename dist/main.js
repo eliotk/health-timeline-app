@@ -167,6 +167,11 @@ document.querySelector("#load-sample-ccda").addEventListener("click", function(e
   loadSampleCcda();
 });
 
+document.querySelector('#close-additional-info').addEventListener("click", function(event) {
+  event.preventDefault();
+  document.querySelector('#additional_info').style.display = "none";
+});
+
 events = localStorage.getItem("events");
 if (events != null) {
   eventData.value = events;
