@@ -62,7 +62,6 @@ Groups.prototype.groupId = function (group_name) {
 }
 
 function loadData() {
-  // get and deserialize the data
   var rawData = jsyaml.load(eventData.value);
 
   var groupProcessing = new Groups(rawData);
@@ -87,14 +86,12 @@ function loadData() {
     return item;
   });
 
-  // groupArray = createGroupArray(data);
-
   items.clear();
   items.add(data);
 
   groups.update( groupProcessing.visArray );
 
-  // adjust the timeline window such that we see the loaded data
+  // adjust the timeline window so that we see the loaded data
   timeline.fit();
 }
 
@@ -103,20 +100,7 @@ function saveData() {
   loadData();
   vNotify.success({title:'Data saved and loaded into timeline'});
 }
-// ceate an array of groups from events object
-function createGroupArray(events) {
-  var unique = {};
-  var distinct = [];
 
-  for( var i in events ) {
-    if( typeof(unique[events[i].group_name]) == "undefined"){
-
-      distinct.push({ id: parseInt(i), content:events[i].group_name });
-    }
-    unique[events[i].group_name] = 'Unclassified';
-  }
-  return JSON.stringify(distinct);
-}
 function loadSampleCcda() {
   var xhr = new XMLHttpRequest();
   xhr.open('get', './sample-ccda.xml', false);
