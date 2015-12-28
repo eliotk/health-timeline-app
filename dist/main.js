@@ -46,7 +46,7 @@ Groups.prototype._generateVisArray = function () {
     if( typeof(unique[events[i].group_name]) == "undefined" && typeof events[i].group_name !== "undefined"){
       distinct.push({ id: parseInt(i), content:events[i].group_name });
     }
-    unique[events[i].group_name] = 'Unclassified';
+    unique[events[i].group_name] = 0;
   }
 
   return distinct;
@@ -89,6 +89,7 @@ function loadData() {
   items.clear();
   items.add(data);
 
+  groups.clear();
   groups.update( groupProcessing.visArray );
 
   // adjust the timeline window so that we see the loaded data
