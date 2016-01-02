@@ -78,12 +78,25 @@ function loadData() {
       delete item.end;
     }
 
+    if(item.end == null) {
+      delete item.end;
+    }
+
     if(typeof item.end == 'undefined') {
       item.type = 'point';
     }
 
-
     return item;
+  }).filter(function(item){
+    if(item.start == null) {
+      return false;
+    }
+
+    if(item.content == null) {
+      return false;
+    }
+
+    return true;
   });
 
   items.clear();
