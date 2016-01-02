@@ -33,15 +33,22 @@ textarea {
   background-color: beige;
 }
 
+.data-text {
+  font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
+}
+
 .data-text.events {
   height: 200px;
   width: 100%;
-  font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
 }
 
 .data-text.ccda {
   width: 100%;
   height: 200px;
+}
+
+.data-text.single-event {
+  font-size: .7em;
 }
 
 .vis-item .vis-item-overflow {
