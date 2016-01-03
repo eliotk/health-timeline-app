@@ -79,3 +79,10 @@ textarea {
   border: 1px solid gray;
   background-color: LightGoldenRodYellow;
 }
+
+.first-time-notice {
+  font-size: 1.5em;
+  border: 2px solid green;
+  padding: 10px;
+  display: none;
+}

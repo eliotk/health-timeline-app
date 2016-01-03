@@ -120,10 +120,13 @@ function loadSampleCcda() {
   xhr.open('get', './sample-ccda.xml', false);
   xhr.send();
   ccdaData.value = xhr.responseText;
+  importCcda();
 }
+
 function importCcda() {
   ccdaProcessor = new CcdaProcessor(ccdaData.value);;
   eventData.value = JSON.stringify(ccdaProcessor.events(), null, 2);
+  saveData();
   vNotify.success({title:'CCDA imported'});
 }
 
@@ -186,8 +189,12 @@ document.querySelector('#close-additional-info').addEventListener("click", funct
   document.querySelector('#additional_info').style.display = "none";
 });
 
+// init
 events = localStorage.getItem("events");
 if (events != null) {
   eventData.value = events;
+  loadData();
+} else {
+  loadSampleCcda();
+  document.querySelector('.first-time-notice').style.display = "block";
 }
-loadData();

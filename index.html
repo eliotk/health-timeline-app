@@ -12,9 +12,11 @@
   <script src="./dist/bluebutton.js"></script>
 </head>
 <body>
+  <div class="first-time-notice">
+    We've loaded some sample events into the the timeline from a <a href="https://en.wikipedia.org/wiki/Clinical_Document_Architecture">CDA</a>.
+    You can read more about the project here.
+  </div>
   <div id="editor">
-    <div class="buttons">
-    </div>
     <div id="additional_info" style="display: none; background-color: gold; padding: 10px;">
       <div style="float:right;">[<a id="close-additional-info" href="">x</a>]</div>
       <h3>Selected event info</h3>
@@ -24,12 +26,11 @@
     <textarea id="data" class="data-text events"></textarea>
     <input type="button" id="save" value="Save" title="Save data from the Timeline into the textarea" />
     <input type="button" class="button file-save" value="Save to File" disabled />
-    <h3>Import CCDA</h3>
-    <a href="#" id="load-sample-ccda">Load sample CCD-A</a>
-    <textarea id="ccda" class="data-text ccda">
-
-    </textarea>
+    <h3 class="header import-ccda">Import C-CDA</h3> <a href="#" id="load-sample-ccda">Load sample C-CDA</a>
+    <textarea id="ccda" class="data-text ccda"></textarea>
     <input type="button" id="import-ccda" value="Import" />
+    <hr />
+    <a href="http://github.com">Source on Github</a> | <a href="http://github.com">Docs</a>
   </div>
   <div id="header">
     <span class="description"><h2>Health Event Timeline</h2> explore and discover</span>
