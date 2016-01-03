@@ -1,0 +1,85 @@
+### health timeline app - view health-related events in a timeline visualization
+
+Live demo: http://www.eliotk.net/health-timeline-app/
+
+#### Why?
+
+I wanted to easily log and view health events in a timeline view using a simple data format. Hopefully the C-CDA import capability will be beneficial for individuals and families loading in their own EHR-exported C-CDAs or perhaps providers using it to get an initial overview of the patient's history.
+
+#### Getting started
+
+My preferred way of building out the data is to use the [YAML format](http://www.yaml.org/start.html) which the event editor can interpret.
+
+So in the Events edit input, you can create an event w/ this:
+
+```
+- content: Hospital Admit (UTI, dehydration)
+  start: 2016-01-01
+  end: 2016-03-01
+  group_name: Hospitalizations
+```
+
+The bare-mimimum required fields/keys are:
+
+* content (description of the event)
+* start (date of event)
+* group_name (category for the event)
+
+The *end* field can be used to create a multi-day event.
+
+You can include any number of additional, arbitrary fields in the event. These fields will be preserved and can be accessed from the event object. An example of a an event w/ additional fields:
+
+```
+- content: Morning hike
+  start: 2016-01-02
+  group_name: Exercise
+  miles: 5
+  location: Bear Mountain Park
+```
+
+To indicate that an event is ongoing and hasn't ended (e.g. for a current medication), set the *end* field to "ongoing" like this:
+
+```
+- content: Propanolol
+  start: 2016-01-02
+  end: ongoing
+  group_name: Meds
+  prescriber: Dr. Dawes
+```
+
+For developers, since it's a simple client-side app w/ all assets already built, running it locally
+is as easy as git cloning the repo:
+
+`git clone git@github.com:eliotk/health-timeline-app.git .`
+
+Then running a local simple web server pointed at the repo dir like node's http-server:
+
+```
+npm install http-server -g
+http-server
+```
+
+#### Is it secure?
+
+All data is stored and handled in the browser. There are no remote push or pull operations.
+
+#### Data persistence
+
+Data is persisted in the browser's local storage (TODO: allow user's to save data to the filesystem).
+
+#### About C-CDA import
+
+The following C-CDA section events can be imported:
+
+* encounters
+* immunizations
+* medications
+* problems
+* procedures
+
+#### Under the hood
+
+* The fantastic [vis.js library](http://visjs.org/) for the timeline visualization
+* The wonderful [BlueButton.js](bluebuttonjs.com) library to process the C-CDA XML into json.
+* The [CHB-collected sample CCDAs repo](https://github.com/chb/sample_ccdas) for testing the import
+* [js-yaml](https://github.com/nodeca/js-yaml) for processing events in the YAML format
