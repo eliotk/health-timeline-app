@@ -1,16 +1,16 @@
-### health timeline app - view health-related events in a timeline visualization
+### health timeline app - view and explore a timeline of health-related events
 
 Live demo: http://www.eliotk.net/health-timeline-app/
 
 #### Why?
 
-I wanted to easily log and view health events in a timeline view using a simple data format. Hopefully the C-CDA import capability will be beneficial for individuals and families loading in their own EHR-exported C-CDAs or perhaps providers using it to get an initial overview of the patient's history.
+I wanted to easily log and view health events structured as a timeline using a simple data format. Hopefully the C-CDA import capability will be beneficial for individuals and families loading in their own EHR-exported C-CDAs or perhaps providers using it to get an initial overview of a patient's history.
 
 #### Getting started
 
-My preferred way of building out the data is to use the [YAML format](http://www.yaml.org/start.html) which the event editor can interpret.
+My preferred way of building out the data is to use the [YAML format](http://www.yaml.org/start.html), which the event editor can interpret.
 
-So in the Events edit input, you can create an event w/ this:
+So in the Events teat area, you can create an event like this:
 
 ```
 - content: Hospital Admit (UTI, dehydration)
@@ -18,6 +18,8 @@ So in the Events edit input, you can create an event w/ this:
   end: 2016-03-01
   group_name: Hospitalizations
 ```
+
+And then click "Save" and the timeline will update.
 
 The bare-mimimum required fields/keys are:
 
@@ -37,7 +39,7 @@ You can include any number of additional, arbitrary fields in the event. These f
   location: Bear Mountain Park
 ```
 
-To indicate that an event is ongoing and hasn't ended (e.g. for a current medication), set the *end* field to "ongoing" like this:
+To indicate that an event is ongoing and hasn't ended (e.g. for a current medication), set the *end* field to "ongoing":
 
 ```
 - content: Propanolol
@@ -47,12 +49,22 @@ To indicate that an event is ongoing and hasn't ended (e.g. for a current medica
   prescriber: Dr. Dawes
 ```
 
+You can also use JSON to describe the events:
+
+```
+[{
+  'content': 'Influenza vaccine',
+  'start': '2015-11-18',
+  'group_name': 'Immunizations'
+}]
+```
+
 For developers, since it's a simple client-side app w/ all assets already built, running it locally
 is as easy as git cloning the repo:
 
 `git clone git@github.com:eliotk/health-timeline-app.git .`
 
-Then running a local simple web server pointed at the repo dir like node's http-server:
+Then running a local static web server pointed at the repo dir like node's http-server:
 
 ```
 npm install http-server -g
@@ -61,11 +73,11 @@ http-server
 
 #### Is it secure?
 
-All data is stored and handled in the browser. There are no remote push or pull operations.
+Yes. All data is stored and handled in the browser. There are no remote push or pull operations.
 
 #### Data persistence
 
-Data is persisted in the browser's local storage (TODO: allow user's to save data to the filesystem).
+Data is persisted in the browser's local storage (TODO: allow users to save data to the filesystem).
 
 #### About C-CDA import
 
