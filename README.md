@@ -95,3 +95,8 @@ The following C-CDA section events can be imported:
 * The wonderful [BlueButton.js](bluebuttonjs.com) library to process the C-CDA XML into json.
 * The [CHB-collected sample CCDAs repo](https://github.com/chb/sample_ccdas) for testing the import
 * [js-yaml](https://github.com/nodeca/js-yaml) for processing events in the YAML format
+
+#### Changelog
+
+* 2016-01-18: Add search functionality to filter events in timeline
+* 2016-01-03: It's up on Github!
