@@ -4,9 +4,12 @@
 var eventData = document.getElementById('data');
 var groupData = document.getElementById('groups');
 var ccdaData = document.getElementById('ccda');
+var searchText = document.getElementById('search-term');
 
 var btnSave = document.getElementById('save');
 var btnCcdaImport = document.getElementById('import-ccda');
+var btnSearch = document.getElementById('search');
+var searchForm = document.getElementById('search-form');
 
 var items = new vis.DataSet();
 
@@ -14,6 +17,7 @@ var container = document.getElementById('visualization');
 var options = {
   // editable: true
 };
+var eventSet = new EventSet();
 var groups = new vis.DataSet();
 var timeline = new vis.Timeline(container, items, groups, options);
 
@@ -61,49 +65,25 @@ Groups.prototype.groupId = function (group_name) {
   }
 }
 
+function search(evt) {
+  evt.preventDefault();
+  items.clear();
+  items.add(eventSet.search(searchText.value));
+  timeline.fit();
+}
+
 function loadData() {
   var rawData = jsyaml.load(eventData.value);
 
-  var groupProcessing = new Groups(rawData);
+  var GroupSet = new Groups(rawData);
 
-  // map data items and convert any ongoing event to proper end date
-  var data = rawData.map(function(item) {
-    if(typeof item.end !== 'undefined' && item.end == 'ongoing') {
-      item.end = vis.moment();
-    }
-
-    item.group = groupProcessing.groupId(item.group_name);
-
-    if(typeof item.end !== 'undefined' && item.start == item.end) {
-      delete item.end;
-    }
-
-    if(item.end == null) {
-      delete item.end;
-    }
-
-    if(typeof item.end == 'undefined') {
-      item.type = 'point';
-    }
-
-    return item;
-  }).filter(function(item){
-    if(item.start == null) {
-      return false;
-    }
-
-    if(item.content == null) {
-      return false;
-    }
-
-    return true;
-  });
+  eventSet.set(rawData, GroupSet);
 
   items.clear();
-  items.add(data);
+  items.add(eventSet.get());
 
   groups.clear();
-  groups.update( groupProcessing.visArray );
+  groups.update( GroupSet.visArray );
 
   // adjust the timeline window so that we see the loaded data
   timeline.fit();
@@ -169,7 +149,7 @@ CcdaProcessor.prototype.events = function() {
   var procedureEvents = this.bb.data.procedures.map(function(item) {
     item.content = item.name;
     item.start = item.date;
-    item.group_name = 'procedures';
+    item.group_name = 'Procedures';
     return item;
   });
 
@@ -178,6 +158,7 @@ CcdaProcessor.prototype.events = function() {
 
 btnSave.onclick = saveData;
 btnCcdaImport.onclick = importCcda;
+searchForm.onsubmit = search;
 
 document.querySelector("#load-sample-ccda").addEventListener("click", function(event){
   event.preventDefault();
